@@ -3,5 +3,36 @@ html
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet' href='/stylesheets/bootstrap.min.css')
+    script(type = 'text/javascript' src = "/javascripts/jquery-3.2.1.slim.min.js")
+    script(type = 'text/javascript' src = "/javascripts/popper.min.js")
+    script(type = 'text/javascript' src = "/javascripts/bootstrap.min.js ")    
+
   body
-    block content
+    nav(class = "navbar navbar-expand-xl navbar-dark bg-dark fixed-top")
+      a(class="navbar-brand" href="#") Haikyuu !
+      button(class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation")
+        span(class="navbar-toggler-icon")
+      div(class="collapse navbar-collapse" id="navbarNavDropdown")
+        ul(class="navbar-nav")
+
+          li(class="nav-item dropdown")
+            a(class="nav-link dropdown-toggle" href="#" id="navbarTeamDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Teams
+            div(class="dropdown-menu" aria-labelledby="navbarTeamDropdown")
+              a(class="dropdown-item" href="#") Create a New Team
+              a(class="dropdown-item" href="#") View All Teams     
+
+          li(class="nav-item dropdown")
+            a(class="nav-link dropdown-toggle" href="#" id="navbarPositionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Positions
+            div(class="dropdown-menu" aria-labelledby="navbarPositionDropdown")
+              a(class="dropdown-item" href="#") Create a New Position
+              a(class="dropdown-item" href="#") View All Position     
+
+          li(class="nav-item dropdown")
+            a(class="nav-link dropdown-toggle" href="#" id="navbarPlayerDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Players
+            div(class="dropdown-menu" aria-labelledby="navbarPlayerDropdown")
+              a(class="dropdown-item" href="#") Create a New Player
+              a(class="dropdown-item" href="#") View All Players     
+
+    div(class = "main-content")
+      block content

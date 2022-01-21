@@ -1,5 +1,10 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1(class = "text-center")= title
+  p(class = "text-center") A Who, What, Where of Haikyuu.
+
+  div
+    h4 Teams : #{data.teamCount}
+    h4 Positions : #{data.positionCount}
+    h4 Players : #{data.playerCount}

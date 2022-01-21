@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-console.log('This script populates some categories and their items.')
+console.log('This script populates some teams, positions and players.')
 
 // Get arguments passed on command line
 var userArgs = process.argv.slice(2);
@@ -12,9 +12,9 @@ if (!userArgs[0].startsWith('mongodb')) {
 */
 var async = require('async')
 
-
-var Category = require("./models/category")
-var Item = require("./models/item")
+var Team = require("./models/team");
+var Position = require("./models/position");
+var Player = require("./models/player");
 
 var mongoose = require('mongoose');
 var mongoDB = userArgs[0];
@@ -23,102 +23,137 @@ mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-var categories = [];
-var items = []
+var teams = [];
+var positions = [];
+var players = [];
 
-function categoryCreate(category_title, category_description, cb){
-  var categoryDetail = {category_title: category_title, category_description: category_description};
-  var category = new Category(categoryDetail);
 
-  category.save(function(err){
+function teamCreate(team_title, team_motto, team_region, cb){
+
+  var teamDetail = {team_title: team_title, team_motto: team_motto, team_region: team_region};
+  var team = new Team(teamDetail);
+
+  team.save(function(err){
     if(err){
       cb(err, null);
       return
     }
-    console.log("New Category : " + category);
-    categories.push(category);
-    cb(null, category)
+    //console.log("New Team : "+ team);
+    teams.push(team);
+    cb(null, team);
   })
 
 }
 
-function itemCreate(item_name, item_price, item_stock, category, cb){
-  var itemDetail = {
-    item_name: item_name,
-    item_price: item_price,
-    item_stock: item_stock,
-    category: category
-  }
-  var item = new Item(itemDetail);
 
-  item.save(function(err){
+function positionCreate(position_title, position_description, cb){
+
+  var positionDetail = {position_title: position_title, position_description: position_description};
+  var position = new Position(positionDetail);
+
+  position.save(function(err){
     if(err){
       cb(err, null);
       return
     }
-    console.log("New Item : " + item);
-    items.push(item);
-    cb(null, item);
-  });
+   //console.log("New Position : "+position);
+    positions.push(position);
+    cb(null, position);
+  })
+
+}
+
+function playerCreate(player_name, player_age, player_position, player_team, cb){
+
+  var playerDetail = {player_name: player_name, player_age: player_age, player_position: player_position, player_team: player_team};
+  var player = new Player(playerDetail);
+
+  player.save(function(err){
+    if(err){
+      cb(err, null)
+      return
+    }
+    //console.log("New Player : "+player);
+    players.push(player);
+    cb(null, player);
+  })
+
+}
+
+function createTeams(cb){
+
+  async.parallel([
+    function(callback){
+      teamCreate("Karasuno High", "Fly", "Miyagi Prefecture", callback)
+    },
+    function(callback){
+      teamCreate("Fukurōdani Academy", "Certain Victory", "Tokyo Prefecture", callback)
+    },
+    function(callback){
+      teamCreate("Inarizaki High", "Who Needs Memories ?", "Hyogo Prefecture", callback)
+    },
+  ],
+  cb)
+
 }
 
 
-function createCategories(cb){
+function createPositions(cb){
+
   async.parallel([
     function(callback){
-      categoryCreate("Posters", "High definition posters of A3 size on 300GSM paper.", callback)
+      positionCreate("Setter", "Playmakers of the volleyball team. Their responsibilities are to run the team's attacks and build up potential scoring opportunities for the team.  ", callback)
     },
     function(callback){
-      categoryCreate("T-Shirts", "Printed T-Shirts of your favorite anime characters and quotes.", callback)
+      positionCreate("Middle Blockers", "Players playing close to the net in the middle of the court. Their responsiblities are to stop fast plays and also perform equally fast attacks in return. ", callback)
     },
     function(callback){
-      categoryCreate("Figurines", "Miniature action figures with realistic design.", callback)
+      positionCreate("Libero", "Exclusive defensive position. Responsible for receiving an attack or serve. They are players quickest reaction time and best passing skills.", callback)
     },
-    
+    function(callback){
+      positionCreate("Wing Spikers", "Highest point scorers who attack with the ball set by the Setter. Also carry serve recieve responsiblity. Can play back or front row.", callback)
+    },
   ],
   cb)
 }
 
 
-function createItems(cb){
+function createPlayers(cb){
+  
   async.parallel([
     function(callback){
-      itemCreate("Attack on Titan Season 4", 250, 20, categories[0], callback)
+      playerCreate("Shoyo Hinata", 15, positions[1], teams[0], callback)
     },
     function(callback){
-      itemCreate("Haikyuu - Hinata - Karauno", 250, 20, categories[0], callback)
+      playerCreate("Tobio Kageyama", 15, positions[0], teams[0], callback)
     },
     function(callback){
-      itemCreate("Kimi No Na Wa", 250, 20, categories[0], callback)
+      playerCreate("Osamu Miya", 17, positions[3], teams[2], callback)
     },
     function(callback){
-      itemCreate("My Hero Academia - Izuku", 250, 20, categories[0], callback)
+      playerCreate("Kotaro Bokuto", 17, positions[3], teams[1], callback)
     },
     function(callback){
-      itemCreate("DragonBall Z - Goku Kamehameha", 350, 10, categories[1], callback)
+      playerCreate("Yu Nishinoya", 16, positions[2], teams[0], callback)
     },
     function(callback){
-      itemCreate("Attack on Titan - Levi", 350, 10, categories[1], callback)
+      playerCreate("Michinari Akagi", 18, positions[2], teams[2], callback)
     },
     function(callback){
-      itemCreate("Naruto - Mangekyou Sharingan", 350, 10, categories[1], callback)
+      playerCreate("Rintaro Suna", 16, positions[1], teams[2], callback)
     },
     function(callback){
-      itemCreate("Alphonse Elric", 950, 10, categories[2], callback)
-    },
-    function(callback){
-      itemCreate("All Might", 950, 10, categories[2], callback)
-    },
-    function(callback){
-      itemCreate("Sleeping Zenitsu", 950, 10, categories[2], callback)
-    },
+      playerCreate("Keiji Akaashi", 17, positions[0], teams[1], callback)
+    }
   ],
   cb)
 }
+
 
 async.series([
-    createCategories,
-    createItems
+    createTeams,
+    createPositions,
+    createPlayers
 ],
 // Optional callback
 function(err, results) {
@@ -126,7 +161,7 @@ function(err, results) {
         console.log('FINAL ERR: '+err);
     }
     else {
-        console.log('Items: '+items);
+        console.log('players: '+results);
         
     }
     // All done, disconnect from database

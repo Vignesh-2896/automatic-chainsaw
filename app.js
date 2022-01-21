@@ -7,7 +7,7 @@ var compression = require("compression");
 var helmet = require("helmet");
 
 var indexRouter = require('./routes/index');
-var storeRouter = require("./routes/store")
+var haikyuuRouter = require("./routes/haikyuu")
 
 var app = express();
 
@@ -32,7 +32,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use("/store",storeRouter);
+app.use("/haikyuu",haikyuuRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
