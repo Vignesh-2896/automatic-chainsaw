@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  h1(class = "text-center")= title
+
+  div(class = "container")
+    div(class = "row")
+        each position in position_data 
+            div(class = "col text-center")
+                a(href=position.url) #{position.position_title}

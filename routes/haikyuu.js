@@ -25,8 +25,6 @@ router.get("/team/:teamID", team.team_detail) // Detailed View of a Team
 router.get("/teams", team.team_list) // GET request to fetch all Teams.
 
 // Position routine.
-router.get("/position/:positionID", position.position_detail) // Detailed View of a Position
-
 router.get("/position/create", position.position_create_get) // GET request to create a new Position
 
 router.post("/position/create", position.position_create_post) // POST request to create a new Position
@@ -38,6 +36,8 @@ router.post("/position/:positionID/delete", position.position_delete_post) // PO
 router.get("/position/:positionID/update", position.position_update_get) // GET request to update a Position
 
 router.post("/position/:positionID/update", position.position_update_post) // POST request to update a Position
+
+router.get("/position/:positionID", position.position_detail) // Detailed View of a Position
 
 router.get("/positions", position.position_list) // GET request to fetch all Positions.
 

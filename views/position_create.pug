@@ -1,0 +1,28 @@
+extends layout
+
+block content
+  h1(class = "text-center")= title
+
+  if positionData
+    - var positionDescriptionBox = positionData.position_description;
+  else
+    - var positionDescriptionBox = "";
+
+  if errors
+    - var form_positionName = errors.find(err => err.param === "positionName");
+    - var form_positionDescription = errors.find(err => err.param === "positionDescription");
+
+  form(method="POST")
+    div(class="form-group")
+        label(for="positionName") Position Name :
+        input(class = "form-control" name = "positionName" type="text" placeholder = "Enter Position" value=(undefined===positionData ? "" : positionData.position_title) required="true")
+        if form_positionName
+            small(class =  "form-text text-danger") #{form_positionName.msg}
+
+    div(class="form-group")
+        label(for="positionDescription") Position Description :
+        textarea(class = "form-control" name = "positionDescription" type="text" placeholder = "Enter Position Description" required="true") #{positionDescriptionBox}
+        if form_positionDescription
+            small(class =  "form-text text-danger") #{form_positionDescription.msg}
+
+    button(type="submit" class = "btn btn-primary") Submit

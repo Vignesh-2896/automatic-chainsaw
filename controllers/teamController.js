@@ -49,8 +49,8 @@ exports.team_create_get = function(req, res, next){
 exports.team_create_post = [
 
     body("team_name").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").isAlpha('en-US', {ignore:' '}).withMessage("Use alphabets."),
-    body("team_region").trim().isAlpha('en-US', {ignore:' '}).withMessage("Use alphabets."),
-    body("team_motto").trim().isAlpha().withMessage("Use alphabets."),
+    body("team_region").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").isAlpha('en-US', {ignore:' '}).withMessage("Use alphabets."),
+    body("team_motto").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").isAlpha().withMessage("Use alphabets."),
 
     (req,res,next) => {
         const errors = validationResult(req);
