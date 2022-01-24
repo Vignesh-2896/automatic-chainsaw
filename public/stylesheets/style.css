@@ -11,3 +11,7 @@ a {
   margin:30px;
   padding:10px;
 }
+
+.border-check {
+  border:1px solid black;
+}

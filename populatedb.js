@@ -164,6 +164,7 @@ function(err, results) {
         console.log('players: '+results);
         
     }
+    console.log(teams)
     // All done, disconnect from database
     mongoose.connection.close();
 });

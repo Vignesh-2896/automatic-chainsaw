@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  h1(class = "text-center")= title
+
+  div(class = "container")
+    div(class = "row")
+        each team in team_data 
+            div(class = "col text-center")
+                a(href=team.url) #{team.team_title}

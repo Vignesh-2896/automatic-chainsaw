@@ -8,11 +8,9 @@ var team = require("../controllers/teamController");
 // Team routine.
 router.get("/",team.site_index); // Homepage of Website
 
-router.get("/team/:teamID", team.team_detail) // Detailed View of a Team
+router.get("/team/create", team.team_create_get) // GET request to create a new Team
 
-router.get("/team/:teamID/create", team.team_create_get) // GET request to create a new Team
-
-router.post("/team/:teamID/create", team.team_create_post) // POST request to create a new Team
+router.post("/team/create", team.team_create_post) // POST request to create a new Team
 
 router.get("/team/:teamID/delete", team.team_delete_get) // GET request to delete a Team
 
@@ -22,14 +20,16 @@ router.get("/team/:teamID/update", team.team_update_get) // GET request to updat
 
 router.post("/team/:teamID/update", team.team_update_post) // POST request to update a Team
 
+router.get("/team/:teamID", team.team_detail) // Detailed View of a Team
+
 router.get("/teams", team.team_list) // GET request to fetch all Teams.
 
 // Position routine.
 router.get("/position/:positionID", position.position_detail) // Detailed View of a Position
 
-router.get("/position/:positionID/create", position.position_create_get) // GET request to create a new Position
+router.get("/position/create", position.position_create_get) // GET request to create a new Position
 
-router.post("/position/:positionID/create", position.position_create_post) // POST request to create a new Position
+router.post("/position/create", position.position_create_post) // POST request to create a new Position
 
 router.get("/position/:positionID/delete", position.position_delete_get) // GET request to delete a Position
 
@@ -44,9 +44,9 @@ router.get("/positions", position.position_list) // GET request to fetch all Pos
 // Player routine.
 router.get("/player/:playerID", player.player_detail) // Detailed View of a Player.
 
-router.get("/player/:playerID/create", player.player_create_get) // GET request to create a new Player
+router.get("/player/create", player.player_create_get) // GET request to create a new Player
 
-router.post("/player/:playerID/create", player.player_create_post) // POST request to create a new Player
+router.post("/player/create", player.player_create_post) // POST request to create a new Player
 
 router.get("/player/:playerID/delete", player.player_delete_get) // GET request to delete a Player
 

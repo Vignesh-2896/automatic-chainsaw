@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  h1(class = "text-center")= title
+
+  if errors
+    - var form_teamName = errors.find(err => err.param === "team_name");
+    - var form_teamRegion = errors.find(err => err.param === "team_region");
+    - var form_teamMotto = errors.find(err => err.param === "team_motto");
+
+  form(method="POST")
+    div(class="form-group")
+        label(for="team_name") Team Name :
+        input(class = "form-control" name = "team_name" type="text" placeholder = "Enter Team Name" value=(undefined===teamData ? "" : teamData.team_title) required="true")
+        if form_teamName
+            small(class =  "form-text text-danger") #{form_teamName.msg}
+
+    div(class="form-group")
+        label(for="team_region") Team Region :
+        input(class = "form-control" name = "team_region" type="text" placeholder = "Enter Team Region" value=(undefined===teamData ? "" : teamData.team_region)  required="true")
+        if form_teamRegion
+            small(class =  "form-text text-danger") #{form_teamRegion.msg}
+
+    div(class="form-group")
+        label(for="team_motto") Team Motto :
+        input(class = "form-control" name = "team_motto" type="text" placeholder = "Enter Team Motto" value=(undefined===teamData ? "" : teamData.team_motto) required="true")
+        if form_teamMotto
+            small(class =  "form-text text-danger") #{form_teamMotto.msg}
+
+    button(type="submit" class = "btn btn-primary") Submit

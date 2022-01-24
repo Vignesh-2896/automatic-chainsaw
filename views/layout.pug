@@ -8,9 +8,9 @@ html
     script(type = 'text/javascript' src = "/javascripts/popper.min.js")
     script(type = 'text/javascript' src = "/javascripts/bootstrap.min.js ")    
 
-  body
+  body(class = "bg-warning")
     nav(class = "navbar navbar-expand-xl navbar-dark bg-dark fixed-top")
-      a(class="navbar-brand" href="#") Haikyuu !
+      a(class="navbar-brand" href="/") Haikyuu !
       button(class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation")
         span(class="navbar-toggler-icon")
       div(class="collapse navbar-collapse" id="navbarNavDropdown")
@@ -19,14 +19,14 @@ html
           li(class="nav-item dropdown")
             a(class="nav-link dropdown-toggle" href="#" id="navbarTeamDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Teams
             div(class="dropdown-menu" aria-labelledby="navbarTeamDropdown")
-              a(class="dropdown-item" href="#") Create a New Team
-              a(class="dropdown-item" href="#") View All Teams     
+              a(class="dropdown-item" href="/haikyuu/team/create") Create a New Team
+              a(class="dropdown-item" href="/haikyuu/teams") View All Teams     
 
           li(class="nav-item dropdown")
             a(class="nav-link dropdown-toggle" href="#" id="navbarPositionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Positions
             div(class="dropdown-menu" aria-labelledby="navbarPositionDropdown")
               a(class="dropdown-item" href="#") Create a New Position
-              a(class="dropdown-item" href="#") View All Position     
+              a(class="dropdown-item" href="#") View All Positions 
 
           li(class="nav-item dropdown")
             a(class="nav-link dropdown-toggle" href="#" id="navbarPlayerDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Players
