@@ -3,17 +3,21 @@ extends layout
 block content
 
   h1(class = "text-center")= title
-
+  
+  // Fetching Player Team separately so that it can be set as selected in the dropdown.
   if playerData && playerData.player_team
     - var playerTeamSelected = playerData.player_team.toString();
   else 
     - var playerTeamSelected = "";
 
+  // Fetching Player Postions separately so that these checkboxes will be set as checked. 
   if playerData && playerData.player_position
      - var playerPositionSelected = playerData.player_position.toString();
   else
      - var playerPositionSelected = "";
 
+  // Fetching and segregating error data for each field.
+  // If error is present for that field, error is embdded in the <small> tag under the input field.
   if errors
     - var form_playerName = errors.find(err => err.param === "playerName");
     - var form_playerAge = errors.find(err => err.param === "playerAge");

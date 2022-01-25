@@ -7,11 +7,12 @@ block content
   h4(class = "text-center font-italic text-secondary")= positionData.position_description
 
   div(class = "container")
-    h4 Players List
+    h5 Players(s) who play in this Position :
     ul
         each player in playerData 
             li
-                a(href=player.url) #{player.player_name}
+                a(href=player.url) #{player.player_name} 
+                span - #{player.player_team.team_title}
 
         else 
             p No player data available for this Position.

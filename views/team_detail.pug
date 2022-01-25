@@ -1,17 +1,31 @@
 extends layout
 
 block content
+        
   h1(class = "text-center text-dark")= title
 
-  h3(class = "text-center text-secondary") #{team_data.team_title} - #{team_data.team_region}
-  h4(class = "text-center font-italic text-secondary")= team_data.team_motto
+  h3(class = "text-center text-secondary") #{teamData.team_title} - #{teamData.team_region}
+  h4(class = "text-center font-italic text-secondary")= teamData.team_motto
 
   div(class = "container")
-    h4 Players List
+    h5 Players for this team : 
     ul
-        each player in player_data 
-            li
-                a(href=player.url) #{player.player_name}
+        each player in playerData
+            li(style={height:'30px'})
+                div(class = "d-flex flex-row")
+                  div(class = "p-2")
+                    a(href=player.url) #{player.player_name}   
+                    span - 
+                    
+                  // Displaying each player position.
+                  
+                  each position,index in player.player_position
+                    div(class = "p-2")  
+                      if index > 0
+                        p , #{position.position_title}
+                      else 
+                        p #{position.position_title}
+
 
         else 
             p No player data available for this team.
@@ -19,8 +33,8 @@ block content
   hr
   div(class = "container")
     h4(class = "text-center text-dark") Actions Available
-    a(href = team_data.url + "/update") 
+    a(href = teamData.url + "/update") 
       button(type = "button" class = "m-2 btn btn-success") Update 
-    a(href = team_data.url + "/delete") 
+    a(href = teamData.url + "/delete") 
       button(type = "button" class = "m-2 btn btn-danger") Delete 
         

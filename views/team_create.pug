@@ -3,6 +3,8 @@ extends layout
 block content
   h1(class = "text-center")= title
 
+  // Fetching and segregating error data for each field.
+  // If error is present for that field, error is embdded in the <small> tag under the input field.
   if errors
     - var form_teamName = errors.find(err => err.param === "team_name");
     - var form_teamRegion = errors.find(err => err.param === "team_region");

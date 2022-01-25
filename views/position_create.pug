@@ -3,11 +3,14 @@ extends layout
 block content
   h1(class = "text-center")= title
 
+  // Fetching Position Description data separately so that can be added back to TextArea box during errors during creation/updation or just updation.
   if positionData
     - var positionDescriptionBox = positionData.position_description;
   else
     - var positionDescriptionBox = "";
 
+  // Fetching and segregating error data for each field.
+  // If error is present for that field, error is embdded in the <small> tag under the input field.
   if errors
     - var form_positionName = errors.find(err => err.param === "positionName");
     - var form_positionDescription = errors.find(err => err.param === "positionDescription");

@@ -5,6 +5,6 @@ block content
 
   div(class = "container")
     div(class = "row")
-        each player,index in playerData 
-            div(class = "col-3 text-center")
+        each player in playerData 
+            div(class = "col-4 text-center mt-1")
                 a(href=player.url) #{player.player_name}
