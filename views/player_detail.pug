@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  h1(class = "text-center text-dark")= title
+
+  h3(class = "text-center text-secondary") #{playerData.player_name} , Age : #{playerData.player_age}
+  h4(class = "text-center text-secondary") Team : #{playerData.player_team.team_title}
+  h4(class = "text-secondary") Positions :
+
+  ul
+    each position in playerData.player_position 
+      li(class = "text-secondary") #{position.position_title}
+
+  hr
+  div(class = "container")
+    h4(class = "text-center text-dark") Actions Available
+    a(href = playerData.url + "/update") 
+      button(type = "button" class = "m-2 btn btn-success") Update 
+    a(href = playerData.url + "/delete") 
+      button(type = "button" class = "m-2 btn btn-danger") Delete 
+        

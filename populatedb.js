@@ -122,28 +122,28 @@ function createPlayers(cb){
   
   async.parallel([
     function(callback){
-      playerCreate("Shoyo Hinata", 15, positions[1], teams[0], callback)
+      playerCreate("Shoyo Hinata", 15, [positions[1],], teams[0], callback)
     },
     function(callback){
-      playerCreate("Tobio Kageyama", 15, positions[0], teams[0], callback)
+      playerCreate("Tobio Kageyama", 15, [positions[0],], teams[0], callback)
     },
     function(callback){
-      playerCreate("Osamu Miya", 17, positions[3], teams[2], callback)
+      playerCreate("Osamu Miya", 17, [positions[3],], teams[2], callback)
     },
     function(callback){
-      playerCreate("Kotaro Bokuto", 17, positions[3], teams[1], callback)
+      playerCreate("Kotaro Bokuto", 17, [positions[3],], teams[1], callback)
     },
     function(callback){
-      playerCreate("Yu Nishinoya", 16, positions[2], teams[0], callback)
+      playerCreate("Yu Nishinoya", 16, [positions[2],], teams[0], callback)
     },
     function(callback){
-      playerCreate("Michinari Akagi", 18, positions[2], teams[2], callback)
+      playerCreate("Michinari Akagi", 18, [positions[2],], teams[2], callback)
     },
     function(callback){
-      playerCreate("Rintaro Suna", 16, positions[1], teams[2], callback)
+      playerCreate("Rintaro Suna", 16, [positions[1],], teams[2], callback)
     },
     function(callback){
-      playerCreate("Keiji Akaashi", 17, positions[0], teams[1], callback)
+      playerCreate("Keiji Akaashi", 17, [positions[0],], teams[1], callback)
     }
   ],
   cb)

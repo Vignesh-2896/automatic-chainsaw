@@ -42,8 +42,6 @@ router.get("/position/:positionID", position.position_detail) // Detailed View o
 router.get("/positions", position.position_list) // GET request to fetch all Positions.
 
 // Player routine.
-router.get("/player/:playerID", player.player_detail) // Detailed View of a Player.
-
 router.get("/player/create", player.player_create_get) // GET request to create a new Player
 
 router.post("/player/create", player.player_create_post) // POST request to create a new Player
@@ -55,6 +53,8 @@ router.post("/player/:playerID/delete", player.player_delete_post) // POST reque
 router.get("/player/:playerID/update", player.player_update_get) // GET request to update a Player
 
 router.post("/player/:playerID/update", player.player_update_post) // POST request to update a Player
+
+router.get("/player/:playerID", player.player_detail) // Detailed View of a Player.
 
 router.get("/players", player.player_list) // GET request to fetch all Players.
 

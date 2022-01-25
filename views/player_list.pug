@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  h1(class = "text-center")= title
+
+  div(class = "container")
+    div(class = "row")
+        each player,index in playerData 
+            div(class = "col-3 text-center")
+                a(href=player.url) #{player.player_name}

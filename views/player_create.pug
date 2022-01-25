@@ -1,0 +1,57 @@
+extends layout
+
+block content
+
+  h1(class = "text-center")= title
+
+  if playerData && playerData.player_team
+    - var playerTeamSelected = playerData.player_team.toString();
+  else 
+    - var playerTeamSelected = "";
+
+  if playerData && playerData.player_position
+     - var playerPositionSelected = playerData.player_position.toString();
+  else
+     - var playerPositionSelected = "";
+
+  if errors
+    - var form_playerName = errors.find(err => err.param === "playerName");
+    - var form_playerAge = errors.find(err => err.param === "playerAge");
+    - var form_playerTeam = errors.find(err => err.param === "playerTeam");
+    - var form_playerPosition = errors.find(err => err.param === "playerPosition");
+
+  form(method="POST")
+    div(class="form-group")
+        label(for="playerName") Player Name :
+        input(class = "form-control" name = "playerName" type="text" placeholder = "Enter Player" value=(undefined===playerData ? "" : playerData.player_name) required="true")
+        if form_playerName
+            small(class =  "form-text text-danger") #{form_playerName.msg}   
+
+    div(class="form-group")
+        label(for="playerAge") Player Age :
+        input(class = "form-control" name = "playerAge" type="number" placeholder = "Enter Player Age" min = "15" max = "20" value=(undefined===playerData ? "" : playerData.player_age) required="true")
+        if form_playerAge
+            small(class =  "form-text text-danger") #{form_playerAge.msg}   
+
+    div(class="form-group")
+        label(for="playerTeam") Player Team :
+        select(class = "form-control" id = "playerTeam" name = "playerTeam")
+          option(value = "") Select a Team from Below
+          each team in teamData 
+            option(value = team._id selected = (team._id.toString() === playerTeamSelected ? 'selected' : false)  )= team.team_title
+        if form_playerTeam
+            small(class =  "form-text text-danger") #{form_playerTeam.msg}            
+  
+    h6 Player Position : 
+    div(class="form-check form-check-inline")
+        each position in positionData
+          div
+            input(class = "form-check-input m-1" type = "checkbox" name = "playerPosition" id = "playerPosition" value = position._id checked = (playerPositionSelected.search(position._id.toString()) !== -1 ? 'checked' : false))
+            label(class = "form-check-label m-1" for="playerPosition") #{position.position_title}
+
+    div(class = "form-group")
+        if form_playerPosition
+            small(class =  "form-text text-danger") #{form_playerPosition.msg}           
+
+    div(class = "form-group")             
+      button(type="submit" onClick = "boxCheck()" class = "btn btn-primary") Submit

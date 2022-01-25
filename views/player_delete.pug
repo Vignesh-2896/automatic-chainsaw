@@ -1,0 +1,22 @@
+extends layout
+
+block content
+  h1(class = "text-center text-dark")= title
+
+
+  h3(class = "text-center text-secondary") #{playerData.player_name} , Age : #{playerData.player_age}
+  h4(class = "text-center text-secondary") Team : #{playerData.player_team.team_title}
+  h4(class = "text-secondary") Positions :
+
+  ul
+    each position in playerData.player_position 
+      li(class = "text-secondary") #{position.position_title}
+
+  div(class = "container")
+
+    h5 Are you sure you want to delete this Player ?
+    form(method="POST")
+        div(class="form-group")
+            input(class = "form-control" name = "player_id" type="hidden" required = "true" value=playerData._id)        
+            button(type="submit" class = "btn btn-danger") Delete
+        
