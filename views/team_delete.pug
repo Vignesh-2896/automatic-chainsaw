@@ -3,12 +3,11 @@ extends layout
 block content
   h1(class = "text-center")= title
 
-  h3(class = "text-center") #{teamData.team_title} - #{teamData.team_region}
-  h4(class = "text-center font-italic") Motto - #{teamData.team_motto} 
-
+  h3(class = "text-center text-secondary") #{teamData.team_title} - #{teamData.team_region}   
+  img(src = teamData.team_image height = "120" width = "150" class = "img-thumbnail rounded mx-auto d-block" alt = "Team Image")  
+  h4(class = "text-center text-secondary font-italic m-2") Motto - #{teamData.team_motto} 
   div(class = "container")
    
-
     if playerData.length
         h5 Please delete the following players before deleting the team : 
         ul

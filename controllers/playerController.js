@@ -2,6 +2,7 @@ var Player = require("../models/player");
 var Team = require("../models/team");
 var Position = require("../models/position");
 
+const fs = require("fs")
 const async = require("async");
 const {body,  validationResult, check} = require("express-validator");
 
@@ -56,7 +57,8 @@ exports.player_create_post = [      // POST handling of Player creation.
             player_name : req.body.playerName,
             player_age : req.body.playerAge,
             player_position :  req.body.playerPosition,
-            player_team : req.body.playerTeam
+            player_team : req.body.playerTeam,
+            player_image: "/image_handling/players/" + req.file.filename
         });
 
         if(!errors.isEmpty()){ // If errors are present in the data input we go back to the creation page, so that errors can be fixed.
@@ -69,14 +71,26 @@ exports.player_create_post = [      // POST handling of Player creation.
                 }
             }, function(err, results){
                 if(err) { return next(err); }
+                fs.unlinkSync("public/"+player.player_image)        // Error in player creation, hence image uploaded is deleted.
+                console.log("File Deleted, error during Player Creation.")
+                player.player_image = "";
                 res.render("player_create", {title:"Create a New Player", teamData: results.teams, positionData: results.positions, errors : errors.array(), playerData: player});
             });
             return
         } else {
-            player.save(function(err){  // If No errors, we can save the data in the DB.
+            Player.findOne({"player_name":req.body.playerName}).exec(function(err, playerAvailable){
                 if(err) { return next(err); }
-                res.redirect(player.url);
-            })
+                if(playerAvailable){     // If Player with same name is already available, application redirects to that player's page.
+                    fs.unlinkSync("public/"+player.player_image)        // Error in player creation, hence image uploaded is deleted.
+                    console.log("File Deleted, error during successfull Player Creation. Player already exists.")
+                    res.redirect(playerAvailable.url);
+                } else {
+                    player.save(function(err){  // If No errors, we can save the data in the DB.
+                        if(err) { return next(err); }
+                        res.redirect(player.url);
+                    });
+                }
+            });
         }
     }
 ]
@@ -94,8 +108,10 @@ exports.player_delete_get = function(req, res, next){ // Fetching player data fo
 
 exports.player_delete_post = function(req, res, next){  // POST processing for deletion of a Player.
 
-    Player.findByIdAndRemove(req.body.player_id, function deletePlayer(err){
+    Player.findOneAndDelete({"_id":req.body.player_id}, {}, function deletePlayer(err, oldPlayer){
         if(err) { return next(err); }
+        fs.unlinkSync("public/"+oldPlayer.player_image)        // File deleted during player deletion.
+        console.log("File Deleted during player deletion.")
         res.redirect("/haikyuu/players");
     });
 }
@@ -145,6 +161,7 @@ exports.player_update_post = [ // POST processing of Player update action.
             player_age : req.body.playerAge,
             player_position :  req.body.playerPosition,
             player_team : req.body.playerTeam,
+            player_image: "",
             _id: req.params.playerID
         });
 
@@ -158,13 +175,31 @@ exports.player_update_post = [ // POST processing of Player update action.
                 }
             }, function(err, results){
                 if(err) { return next(err); }
-                res.render("player_create", {title:"Update Player Details", teamData: results.teams, positionData: results.positions, errors : errors.array(), playerData: player});
+                Player.findById(req.params.playerID,'player_image').exec(function(err2, resultData){
+                    if(err2) { return next(err2); }
+                    if(req.file){
+                        fs.unlinkSync("public/image_handling/players/"+req.file.filename);
+                        console.log("New File Deleted during erroneous Player Update operation.")
+                    }
+                    player.player_image = resultData.player_image;
+                    res.render("player_create", {title:"Update Player Details", teamData: results.teams, positionData: results.positions, errors : errors.array(), playerData: player});
+                    return;
+                });
             });
             return
         } else {
-            Player.findByIdAndUpdate(req.params.playerID, player, {}, function(err, thePlayer){  // If no errors, then we can update the player data in DB.
-                if(err) { return next(err); }
-                res.redirect(thePlayer.url);
+            Player.findById(req.params.playerID,'player_image').exec(function(err, results){
+                if (req.file) {
+                    player.player_image = "/image_handling/players/" + req.file.filename;
+                    fs.unlinkSync("public/"+results.player_image)        //Unlink old player image.
+                    console.log("Old File Deleted during successful Player Update operation.")
+                } else
+                    player.player_image = results.player_image;
+
+                Player.findByIdAndUpdate(req.params.playerID, player, {}, function(err, thePlayer){
+                    if(err) { return next(err); }
+                    res.redirect(thePlayer.url)
+                })
             });
         }
     }
@@ -172,7 +207,7 @@ exports.player_update_post = [ // POST processing of Player update action.
 
 exports.player_list = function(req, res, next){ // Fetching all players available in the DB.
 
-    Player.find({}, "player_name")
+    Player.find({}, {"player_name":1, "player_image":1})
     .sort({player_name:1})
     .exec(function(err, result){
         if(err) { return next(err); }

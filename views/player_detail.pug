@@ -3,13 +3,16 @@ extends layout
 block content
   h1(class = "text-center text-dark")= title
 
+  img(src = playerData.player_image height = "120" width = "150" class = "img-thumbnail rounded mx-auto d-block m-1" alt = "Player Image")
   h4(class = "text-center text-secondary") #{playerData.player_name} , Age : #{playerData.player_age}
-  h4(class = "text-center text-secondary") Team : #{playerData.player_team.team_title}
+  h4(class = "text-center text-secondary") Team : 
+    a(href = playerData.player_team.url)  #{playerData.player_team.team_title}
   h5(class = "text-secondary") Position(s) :
 
   ul
     each position in playerData.player_position 
-      li(class = "text-secondary") #{position.position_title}
+      li(class = "text-secondary") 
+        a(href = position.url) #{position.position_title}
 
   hr
   div(class = "container")

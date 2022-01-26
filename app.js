@@ -36,7 +36,7 @@ app.use("/haikyuu",haikyuuRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  res.render('nowhere', {title:"Edge of Entertainment"});
 });
 
 // error handler

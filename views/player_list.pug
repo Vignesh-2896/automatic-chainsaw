@@ -6,5 +6,6 @@ block content
   div(class = "container")
     div(class = "row")
         each player in playerData 
-            div(class = "col-4 text-center mt-1")
+            div(class = "col-4 text-center mt-2")
+                img(src = player.player_image height = "120" width = "150" class = "img-thumbnail rounded mx-auto d-block" alt = "Player Image")
                 a(href=player.url) #{player.player_name}

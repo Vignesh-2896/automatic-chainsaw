@@ -2,6 +2,7 @@ var Team = require("../models/team");
 var Position = require("../models/position");
 var Player = require("../models/player");
 
+const fs = require("fs")
 const async = require("async");
 const {body, validationResult} = require("express-validator");
 
@@ -50,7 +51,7 @@ exports.team_create_post = [//POST processing of Position creation.
     // Validations and error messags.
     body("team_name").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").isAlpha('en-US', {ignore:' '}).withMessage("Use alphabets.").escape(),
     body("team_region").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").isAlpha('en-US', {ignore:' '}).withMessage("Use alphabets.").escape(),
-    body("team_motto").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").isAlpha().withMessage("Use alphabets.").escape(),
+    body("team_motto").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").isAlpha('en-US', {ignore:' '}).withMessage("Use alphabets.").escape(),
 
     (req,res,next) => {
         const errors = validationResult(req);
@@ -58,17 +59,23 @@ exports.team_create_post = [//POST processing of Position creation.
             {
                 team_title: req.body.team_name,
                 team_region: req.body.team_region,
-                team_motto: req.body.team_motto
+                team_motto: req.body.team_motto,
+                team_image: "/image_handling/teams/" + req.file.filename
             }
         );
         if(!errors.isEmpty()){  // If errors are present we go back to the creation page with error data which can be corrected.
+            fs.unlinkSync("public/"+team.team_image)        // Error in team creation, hence image uploaded is deleted.
+            console.log("File Deleted, error during Team Creation.")
+            team.team_image = "";
             res.render("team_create", {title: " Create a New Team", teamData:team, errors: errors.array()});
-            return;
-        } else {
+            return;            
+        } else {          
             Team.findOne({"team_title":req.body.team_name})
             .exec(function(err, team_available){
                 if(err) { return next(err); }
                 if(team_available){ // If Team with same name is already available, application redirects to that team's page.
+                    fs.unlinkSync("public/"+team.team_image)        // Error in team creation, hence image uploaded is deleted.
+                    console.log("File Deleted, error during successful Team Creation. Team already exists.")
                     res.redirect(team_available.url);
                 } else {
                     team.save(function(err){    // If No errors and no team with same name is present, we save the team in the DB.
@@ -113,11 +120,12 @@ exports.team_delete_post = function(req, res, next){    // POST processing of De
         if(err) { return next(err); }
         if(results.players.length > 0){
             res.render("team_delete", {title: "Delete Team", teamData: results.team, playerData: results.players});
-        }
-        else {
-            Team.findByIdAndDelete(req.body.team_id, function deleteTeam(err){
+        } else {
+            Team.findOneAndDelete({"_id":req.body.team_id}, {}, function deleteTeam(err, oldTeam){
                 if(err) { return next(err); }
-                res.redirect("/haikyuu/teams");
+                fs.unlinkSync("public/"+oldTeam.team_image)        // File deleted during team deletion.
+                console.log("File Deleted during team deletion.")
+                res.redirect("/haikyuu/teams");     
             });
         }
     })
@@ -141,7 +149,7 @@ exports.team_update_post = [ // POST processing of Player update action.
     // Validations and error messages same as position creation.
     body("team_name").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").isAlpha('en-US', {ignore:' '}).withMessage("Use alphabets.").escape(),
     body("team_region").trim().isAlpha('en-US', {ignore:' '}).withMessage("Use alphabets.").escape(),
-    body("team_motto").trim().isAlpha().withMessage("Use alphabets.").escape(),
+    body("team_motto").trim().isAlpha('en-US', {ignore:' '}).withMessage("Use alphabets.").escape(),
 
     (req,res,next) => {
 
@@ -151,25 +159,43 @@ exports.team_update_post = [ // POST processing of Player update action.
                 team_title: req.body.team_name,
                 team_region: req.body.team_region,
                 team_motto: req.body.team_motto,
+                team_image: "",                
                 _id: req.params.teamID
             }
         );
 
-        if(!errors.isEmpty()){   // if errors are present we go back to update page with error data so that it can be correct.
-            res.render("team_create", {title: " Update Team Details", teamData:team, errors: errors.array()});
-            return;
-        } else {
-            Team.findByIdAndUpdate(req.params.teamID, team, {}, function(err, theTeam){
+        if(!errors.isEmpty()){   // if errors are present we go back to update page with error data so that it can be correct.       
+            Team.findById(req.params.teamID,'team_image').exec(function(err, result){
                 if(err) { return next(err); }
-                res.redirect(theTeam.url)
-            })
+                if(req.file){
+                    fs.unlinkSync("public/image_handling/teams/"+req.file.filename);
+                    console.log("New File Deleted during erroneous Team Update operation.")
+                }
+                team.team_image = result.team_image;
+                res.render("team_create", {title: " Update Team Details", teamData:team, errors: errors.array()});
+                return;
+            });
+        } else {
+            Team.findById(req.params.teamID,'team_image').exec(function(err, results){
+                if (req.file){
+                    team.team_image = "/image_handling/teams/" + req.file.filename;
+                    fs.unlinkSync("public/"+results.team_image)        //Unlink old team logo/image.
+                    console.log("Old File Deleted during successful Team Update operation.")
+                } else 
+                    team.team_image = results.team_image;
+
+                Team.findByIdAndUpdate(req.params.teamID, team, {}, function(err, theTeam){
+                    if(err) { return next(err); }
+                    res.redirect(theTeam.url);
+                });
+            });
         }
     }
 ]
 
 exports.team_list = function(req, res, next){   // Fetch all the tams available specifically the field team_title.
 
-    Team.find({}, 'team_title')
+    Team.find({}, {'team_title':1, 'team_image':1})
     .sort({team_title:1})
     .exec(function(err, results){
         if(err) return next(err);

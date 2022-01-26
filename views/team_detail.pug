@@ -5,7 +5,8 @@ block content
   h1(class = "text-center text-dark")= title
 
   h3(class = "text-center text-secondary") #{teamData.team_title} - #{teamData.team_region}
-  h4(class = "text-center font-italic text-secondary")= teamData.team_motto
+  img(src = teamData.team_image height = "120" width = "150" class = "img-thumbnail rounded mx-auto d-block" alt = "Team Image")
+  h4(class = "text-center font-italic text-secondary m-1") Motto - #{teamData.team_motto}
 
   div(class = "container")
     h5 Players for this team : 

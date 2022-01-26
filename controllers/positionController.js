@@ -30,7 +30,7 @@ exports.position_create_get = function(req, res, next){
 
 exports.position_create_post = [ //POST processing of Position creation.
     // Validations and error messags.
-    body("positionName").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").matches(/^[A-Za-z ]+$/).withMessage("Use alphabets.").escape(),
+    body("positionName").trim().isLength({min:3}).withMessage("Minimum 3 characters needed.").matches(/^[A-Za-z ]+$/).withMessage("Use alphabets.").escape(),
     body("positionDescription").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").matches(/^[A-Za-z .]+$/).withMessage("Use alphabets.").escape(),
 
     (req, res, next) => {
@@ -115,7 +115,7 @@ exports.position_update_get = function(req, res, next){ // For updating a positi
 
 exports.position_update_post = [ // POST processing of Player update action.
     // Validations and error messages same as position creation.
-    body("positionName").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").matches(/^[A-Za-z ]+$/).withMessage("Use alphabets.").escape(),
+    body("positionName").trim().isLength({min:3}).withMessage("Minimum 3 characters needed.").matches(/^[A-Za-z ]+$/).withMessage("Use alphabets.").escape(),
     body("positionDescription").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").matches(/^[A-Za-z .]+$/).withMessage("Use alphabets.").escape(),
 
     (req, res, next) => {
