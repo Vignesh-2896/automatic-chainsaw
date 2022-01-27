@@ -13,8 +13,9 @@ var app = express();
 
 //Database Setup
 
+let mongoDBURL = "";
 var mongoose = require('mongoose');
-var mongoDB = 'mongodb+srv://m001-student:m001-mongodb-basics@cluster0.y9qpd.mongodb.net/InventoryApp?retryWrites=true&w=majority';
+var mongoDB = mongoDBURL;
 mongoose.connect(mongoDB, { useNewUrlParser: true , useUnifiedTopology: true});
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
