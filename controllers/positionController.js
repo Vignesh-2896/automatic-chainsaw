@@ -5,7 +5,7 @@ const async = require("async");
 const axios = require("axios");
 const {body, validationResult} = require("express-validator");
 
-axios.defaults.baseURL = 'http://localhost:3000/haikyuu/';
+axios.defaults.baseURL = 'https://lit-ridge-83224.herokuapp.com/haikyuu/';
 
 exports.position_detail = function(req, res, next){    // Fetching Position Data and players in that position.
 
