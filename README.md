@@ -26,6 +26,7 @@ If password is correct, user is redirected accordingly and the DB is updated wit
     ex : 'mongodb+srv://<username>:<password>@<Mongo DB Cluster>/<Your DB>'
 2. In routes/haikyuu.js -  function myAuthorizer - set your own password which will be used for authentication.
 3. In the three controller files in controllers folder, change Axios Base URL to the one belonging to your website.
+    
     ex: If Localhost -> axios.defaults.baseURL = 'http://localhost:<Your Port>/haikyuu/';
     
     ex: If Hosted    -> axios.defaults.baseURL = 'http://<Hosted Website Path>/haikyuu/';
