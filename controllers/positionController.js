@@ -2,7 +2,10 @@ var Position = require("../models/position");
 var Player = require("../models/player");
 
 const async = require("async");
+const axios = require("axios");
 const {body, validationResult} = require("express-validator");
+
+axios.defaults.baseURL = 'http://localhost:3000/haikyuu/';
 
 exports.position_detail = function(req, res, next){    // Fetching Position Data and players in that position.
 
@@ -74,11 +77,14 @@ exports.position_delete_get = function(req, res, next){ // Position and players 
         if(results.position == null){
             res.redirect("/haikyuu/positions");               
         }
-        res.render("position_delete",{title:"Delete Position", positionData: results.position, playerData: results.players});
+        res.render("position_delete",{title:"Delete Position", positionData: results.position, playerData: results.players, formType:"Delete"});
     })
 }
 
-exports.position_delete_post = function(req, res){ // POST processing of Delete action in Position.
+exports.position_delete_post = async function(req, res){ // POST processing of Delete action in Position.
+
+    // Call to check whether password entered during delete operation is valid or not.
+    let passwordValidity =  await axios.post("positions/authenticate", { username: "admin",password: req.body.passwordForAction}).then(result => result.data.validity);
 
     async.parallel({
         position: function(callback){
@@ -90,7 +96,9 @@ exports.position_delete_post = function(req, res){ // POST processing of Delete 
     }, function(err, results){  // If Position is found with the ID required, we proceed to deletion provided no errors are present.
         if(err) { return next(err); }
         if(results.players.length > 0){
-            res.render("position_delete",{title:"Delete Position", positionData: results.position, playerData: results.players});
+            res.render("position_delete",{title:"Delete Position", positionData: results.position, playerData: results.players, formType:"Delete"});
+        } else if (!passwordValidity) { // If password fails authentication, we go back to the previous page so that user can enter correct password.
+            res.render("position_delete",{title:"Delete Position", positionData: results.position, playerData: results.players, formType:"Delete", actionErr : "Incorrect password. Deletion failed. Try again."});
         } else {
             Position.findByIdAndDelete(req.body.position_id, function deletePosition(err){
                 if(err) { return next(err); }
@@ -109,7 +117,7 @@ exports.position_update_get = function(req, res, next){ // For updating a positi
             err.status = 404;
             return next(err);
         }
-        res.render("position_create", {title:"Update Position Details", positionData:position})
+        res.render("position_create", {title:"Update Position Details", positionData:position, formType:"Update"})
     });
 }
 
@@ -118,8 +126,11 @@ exports.position_update_post = [ // POST processing of Player update action.
     body("positionName").trim().isLength({min:3}).withMessage("Minimum 3 characters needed.").matches(/^[A-Za-z ]+$/).withMessage("Use alphabets.").escape(),
     body("positionDescription").trim().isLength({min:5}).withMessage("Minimum 5 characters needed.").matches(/^[A-Za-z .]+$/).withMessage("Use alphabets.").escape(),
 
-    (req, res, next) => {
+    async (req, res, next) => {
         const errors = validationResult(req);
+
+        // Call to check whether password entered during update operation is valid or not.        
+        let passwordValidity =  await axios.post("positions/authenticate", { username: "admin",password: req.body.passwordForAction}).then(result => result.data.validity);
 
         var position = new Position({
             position_title: req.body.positionName,
@@ -128,8 +139,10 @@ exports.position_update_post = [ // POST processing of Player update action.
         });
 
         if(!errors.isEmpty()){  // if errors are present we go back to update page with error data so that it can be correct.
-            res.render("position_create",{title:"Update Position Details", errors: errors.array(), positionData: position});
+            res.render("position_create",{title:"Update Position Details", errors: errors.array(), formType:"Update", positionData: position});
             return;
+        } else if(!passwordValidity){ // If password fails authentication, we go back to the previous page so that user can enter correct password.  
+            res.render("position_create",{title:"Update Position Details", positionData: position, formType:"Update", actionErr:"Incorrect password. Update failed. Try again."});
         } else {
             Position.findByIdAndUpdate(req.params.positionID, position, {}, function(err, thePosition){ // If no errors, then we can update the player data in DB.
                 if(err) { return next(err); }
@@ -139,7 +152,7 @@ exports.position_update_post = [ // POST processing of Player update action.
     } 
 ]
 
-exports.position_list = function(req, res, next){
+exports.position_list = async function(req, res, next){
 
     Position.find({},'position_title')  // Fetch all the positions available specifically the field position_title.
     .sort({position_title:1})

@@ -4,6 +4,7 @@ var Player = require("../models/player");
 
 const fs = require("fs")
 const async = require("async");
+const axios = require("axios");
 const {body, validationResult} = require("express-validator");
 
 exports.site_index = function(req, res, next){
@@ -103,11 +104,14 @@ exports.team_delete_get = function(req, res, next){ // Position and players in t
         if(results.team==null){
             res.redirect("/haikyuu/teams");
         }
-        res.render("team_delete",{title:"Delete Team", teamData: results.team, playerData: results.players});
+        res.render("team_delete",{title:"Delete Team", teamData: results.team, playerData: results.players, formType:"Delete"});
     })
 }
 
-exports.team_delete_post = function(req, res, next){    // POST processing of Delete action in Position.
+exports.team_delete_post = async function(req, res, next){    // POST processing of Delete action in Position.
+
+    // Call to check whether password entered during delete operation is valid or not.   
+    let passwordValidity =  await axios.post("teams/authenticate", { username: "admin",password: req.body.passwordForAction}).then(result => result.data.validity);
 
     async.parallel({
         team: function(callback){
@@ -119,13 +123,15 @@ exports.team_delete_post = function(req, res, next){    // POST processing of De
     }, function(err, results){
         if(err) { return next(err); }
         if(results.players.length > 0){
-            res.render("team_delete", {title: "Delete Team", teamData: results.team, playerData: results.players});
+            res.render("team_delete", {title: "Delete Team", teamData: results.team, playerData: results.players, formType:"Delete"});
+        } else if(!passwordValidity){ // If password fails authentication, we go back to the previous page so that user can enter correct password.
+            res.render("team_delete", {title: "Delete Team", teamData: results.team, playerData: results.players, formType:"Delete", actionErr : "Incorrect password. Deletion failed. Try again."});
         } else {
-            Team.findOneAndDelete({"_id":req.body.team_id}, {}, function deleteTeam(err, oldTeam){
+            Team.findByIdAndDelete(req.body.team_id, function deleteTeam(err){
                 if(err) { return next(err); }
-                fs.unlinkSync("public/"+oldTeam.team_image)        // File deleted during team deletion.
+                fs.unlinkSync("public/"+results.team.team_image)        // File deleted during team deletion.
                 console.log("File Deleted during team deletion.")
-                res.redirect("/haikyuu/teams");     
+                res.redirect("/haikyuu/teams");  
             });
         }
     })
@@ -140,7 +146,7 @@ exports.team_update_get = function(req, res, next){ // For updating a team, we f
             err.status = 404;
             return next(err);
         }
-        res.render("team_create", {title: "Update Team Details", teamData: team})
+        res.render("team_create", {title: "Update Team Details", teamData: team, formType:"Update"})
     })
 
 }
@@ -151,9 +157,13 @@ exports.team_update_post = [ // POST processing of Player update action.
     body("team_region").trim().isAlpha('en-US', {ignore:' '}).withMessage("Use alphabets.").escape(),
     body("team_motto").trim().isAlpha('en-US', {ignore:' '}).withMessage("Use alphabets.").escape(),
 
-    (req,res,next) => {
+    async (req,res,next) => {
 
         const errors = validationResult(req);
+
+        // Call to check whether password entered during update operation is valid or not.   
+        let passwordValidity =  await axios.post("teams/authenticate", { username: "admin",password: req.body.passwordForAction}).then(result => result.data.validity);
+
         var team = new Team(
             {
                 team_title: req.body.team_name,
@@ -164,32 +174,35 @@ exports.team_update_post = [ // POST processing of Player update action.
             }
         );
 
-        if(!errors.isEmpty()){   // if errors are present we go back to update page with error data so that it can be correct.       
-            Team.findById(req.params.teamID,'team_image').exec(function(err, result){
-                if(err) { return next(err); }
+        Team.findById(req.params.teamID, 'team_image').exec(function(err, result){
+            if(err) { return next(err);}
+
+            if(!errors.isEmpty() || !passwordValidity){
                 if(req.file){
                     fs.unlinkSync("public/image_handling/teams/"+req.file.filename);
                     console.log("New File Deleted during erroneous Team Update operation.")
                 }
                 team.team_image = result.team_image;
-                res.render("team_create", {title: " Update Team Details", teamData:team, errors: errors.array()});
-                return;
-            });
-        } else {
-            Team.findById(req.params.teamID,'team_image').exec(function(err, results){
+            }
+
+            if(!errors.isEmpty()){   // if errors are present we go back to update page with error data so that it can be correct.       
+                res.render("team_create", {title: " Update Team Details", teamData:team, errors: errors.array(), formType:"Update"});
+            } else if(!passwordValidity){   // If password fails authentication, we go back to the previous page so that user can enter correct password.
+                res.render("team_create", {title: " Update Team Details", teamData:team,  formType:"Update", actionErr:"Incorrect password. Update failed. Try again."});               
+            } else {
                 if (req.file){
                     team.team_image = "/image_handling/teams/" + req.file.filename;
-                    fs.unlinkSync("public/"+results.team_image)        //Unlink old team logo/image.
+                    fs.unlinkSync("public/"+result.team_image)        //Unlink old team logo/image.
                     console.log("Old File Deleted during successful Team Update operation.")
                 } else 
-                    team.team_image = results.team_image;
+                    team.team_image = result.team_image;
 
                 Team.findByIdAndUpdate(req.params.teamID, team, {}, function(err, theTeam){
                     if(err) { return next(err); }
                     res.redirect(theTeam.url);
                 });
-            });
-        }
+            }
+        });
     }
 ]
 

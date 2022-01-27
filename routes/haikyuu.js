@@ -1,11 +1,12 @@
 var express = require("express");
 var router = express.Router();
+var axios = require("axios");
+var multer = require("multer");
+var basicAuth = require("express-basic-auth");
 
 var player = require("../controllers/playerController");
 var position = require("../controllers/positionController");
 var team = require("../controllers/teamController");
-
-const multer = require("multer");
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -20,6 +21,14 @@ var storage = multer.diskStorage({
 })
 
 var upload = multer({storage : storage});
+
+
+function myAuthorizer(username, password) { // Basic password auth using express-basic-auth.
+  const userMatches = basicAuth.safeCompare(username, 'admin')
+  const passwordMatches = basicAuth.safeCompare(password, '#10ark$$b@T')
+
+  return userMatches & passwordMatches
+}
 
 // Team routine.
 router.get("/",team.site_index); // Homepage of Website
@@ -40,6 +49,11 @@ router.get("/team/:teamID", team.team_detail) // Detailed View of a Team
 
 router.get("/teams", team.team_list) // GET request to fetch all Teams.
 
+router.post("/teams/authenticate", async function(req, res){    // Route to which password can be authenticated for update or delete action on a team.
+  let validCheck = myAuthorizer(req.body.username, req.body.password);
+  res.status(200).json({validity:validCheck});
+});
+
 // Position routine.
 router.get("/position/create", position.position_create_get) // GET request to create a new Position
 
@@ -57,6 +71,11 @@ router.get("/position/:positionID", position.position_detail) // Detailed View o
 
 router.get("/positions", position.position_list) // GET request to fetch all Positions.
 
+router.post("/positions/authenticate", async function(req, res){  // Route to which password can be authenticated for update or delete action on a team.
+  let validCheck = myAuthorizer(req.body.username, req.body.password);
+  res.status(200).json({validity:validCheck});
+});
+
 // Player routine.
 router.get("/player/create", player.player_create_get) // GET request to create a new Player
 
@@ -73,5 +92,10 @@ router.post("/player/:playerID/update", upload.single('playerImage'), player.pla
 router.get("/player/:playerID", player.player_detail) // Detailed View of a Player.
 
 router.get("/players", player.player_list) // GET request to fetch all Players.
+
+router.post("/players/authenticate", async function(req, res){  // Route to which password can be authenticated for update or delete action on a team.
+  let validCheck = myAuthorizer(req.body.username, req.body.password);
+  res.status(200).json({validity:validCheck});
+});
 
 module.exports = router;

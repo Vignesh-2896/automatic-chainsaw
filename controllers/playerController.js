@@ -4,7 +4,10 @@ var Position = require("../models/position");
 
 const fs = require("fs")
 const async = require("async");
+const axios = require("axios");
 const {body,  validationResult, check} = require("express-validator");
+
+axios.defaults.baseURL = 'http://localhost:3000/haikyuu/';
 
 exports.player_detail = function(req, res, next){ // Fetching Player Data, its positions and the team.
 
@@ -102,17 +105,27 @@ exports.player_delete_get = function(req, res, next){ // Fetching player data fo
     .populate("player_team")
     .exec(function(err, results){
         if(err) { return next(err); }
-        res.render("player_delete", {title: "Delete Player", playerData:results});
+        res.render("player_delete", {title: "Delete Player", playerData:results, formType:"Delete"});
     })
 }
 
-exports.player_delete_post = function(req, res, next){  // POST processing for deletion of a Player.
+exports.player_delete_post = async function(req, res, next){  // POST processing for deletion of a Player.
 
-    Player.findOneAndDelete({"_id":req.body.player_id}, {}, function deletePlayer(err, oldPlayer){
+ // Call to check whether password entered during delete operation is valid or not.   
+    let passwordValidity =  await axios.post("players/authenticate", { username: "admin",password: req.body.passwordForAction}).then(result => result.data.validity);
+    
+    Player.findById(req.body.player_id).populate("player_position").populate("player_team").exec(function(err, results){
         if(err) { return next(err); }
-        fs.unlinkSync("public/"+oldPlayer.player_image)        // File deleted during player deletion.
-        console.log("File Deleted during player deletion.")
-        res.redirect("/haikyuu/players");
+        if(!passwordValidity){  // If password fails authentication, we go back to the previous page so that user can enter correct password.
+            res.render("player_delete", {title: "Delete Player", playerData:results, actionErr : "Incorrect password. Deletion failed. Try again."});
+        } else {
+            Player.findByIdAndDelete(req.body.player_id, function deletePlayer(err){
+                if(err) { return next(err); }
+                fs.unlinkSync("public/"+results.player_image)        // File deleted during player deletion.
+                console.log("File Deleted during player deletion.")
+                res.redirect("/haikyuu/players");
+            });
+        }
     });
 }
 
@@ -130,7 +143,7 @@ exports.player_update_get = function(req, res, next){ // For updating a player, 
         }
     }, function(err, results){
         if(err) { return next(err); }
-        res.render("player_create", {title:"Update Player Details", teamData: results.teams, positionData: results.positions, playerData: results.playerData });
+        res.render("player_create", {title:"Update Player Details", teamData: results.teams, positionData: results.positions, playerData: results.playerData, formType: "Update" });
     });
 
 }
@@ -152,9 +165,12 @@ exports.player_update_post = [ // POST processing of Player update action.
     body("playerTeam").trim().isLength({min:1}).withMessage("Team has to be selected").escape(),
     body('playerPosition.*').escape(),
 
-    (req, res, next) => {
+    async (req, res, next) => {
 
         const errors = validationResult(req);
+
+        // Call to check whether password entered during update operation is valid or not.       
+        let passwordValidity =  await axios.post("positions/authenticate", { username: "admin",password: req.body.passwordForAction}).then(result => result.data.validity);
 
         var player = new Player({
             player_name : req.body.playerName,
@@ -165,43 +181,44 @@ exports.player_update_post = [ // POST processing of Player update action.
             _id: req.params.playerID
         });
 
-        if(!errors.isEmpty()){   // if errors are present we go back to update page with error data so that it can be correct.
-            async.parallel({
-                teams: function(callback){
-                    Team.find({},"team_title").exec(callback);
-                },
-                positions: function(callback){
-                    Position.find({},"position_title").exec(callback);
+        async.parallel({
+            teams: function(callback){
+                Team.find({},"team_title").exec(callback);
+            },
+            positions: function(callback){
+                Position.find({},"position_title").exec(callback);
+            },
+            oldPlayer: function(callback){
+                Player.findById(req.params.playerID,'player_image').exec(callback);
+            }
+        }, function(err, results){
+            if(err) { return next(err); }
+
+            if(!errors.isEmpty() || !passwordValidity)  // Delete newly uploaded files if there is an error in other fields or password auhentication has failed.
+                if(req.file){
+                    fs.unlinkSync("public/image_handling/players/"+req.file.filename);
+                    console.log("New File Deleted during erroneous Player Update operation. Incorrect Password.")
                 }
-            }, function(err, results){
-                if(err) { return next(err); }
-                Player.findById(req.params.playerID,'player_image').exec(function(err2, resultData){
-                    if(err2) { return next(err2); }
-                    if(req.file){
-                        fs.unlinkSync("public/image_handling/players/"+req.file.filename);
-                        console.log("New File Deleted during erroneous Player Update operation.")
-                    }
-                    player.player_image = resultData.player_image;
-                    res.render("player_create", {title:"Update Player Details", teamData: results.teams, positionData: results.positions, errors : errors.array(), playerData: player});
-                    return;
-                });
-            });
-            return
-        } else {
-            Player.findById(req.params.playerID,'player_image').exec(function(err, results){
+                player.player_image = results.oldPlayer.player_image;
+            
+            if(!errors.isEmpty()){   // if errors are present we go back to update page with error data so that it can be correct.
+                res.render("player_create", {title:"Update Player Details", teamData: results.teams, positionData: results.positions, errors : errors.array(), playerData: player, formType:"Update"});
+            } else if(!passwordValidity){   // If password fails authentication, we go back to the previous page so that user can enter correct password.
+                res.render("player_create", {title:"Update Player Details", teamData: results.teams, positionData: results.positions, playerData: player, formType:"Update", actionErr:"Incorrect password. Update failed. Try again."});
+            } else {
                 if (req.file) {
                     player.player_image = "/image_handling/players/" + req.file.filename;
-                    fs.unlinkSync("public/"+results.player_image)        //Unlink old player image.
+                    fs.unlinkSync("public/"+results.oldPlayer.player_image)        //Unlink old player image.
                     console.log("Old File Deleted during successful Player Update operation.")
                 } else
-                    player.player_image = results.player_image;
+                    player.player_image = results.oldPlayer.player_image;
 
                 Player.findByIdAndUpdate(req.params.playerID, player, {}, function(err, thePlayer){
                     if(err) { return next(err); }
                     res.redirect(thePlayer.url)
-                })
-            });
-        }
+                });   
+            };
+        }); 
     }
 ]
 

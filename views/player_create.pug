@@ -30,48 +30,62 @@ block content
       img(src = playerData.player_image id = "playerCurImage" height = "120" width = "150" class = "img-thumbnail rounded mx-auto d-block" alt = "Player Image")
 
   form(method="POST" enctype="multipart/form-data")
-    div(class="form-group")
-        label(for="playerName") Player Name :
-        input(class = "form-control" name = "playerName" type="text" placeholder = "Enter Player" value=(undefined===playerData ? "" : playerData.player_name) required="true")
-        if form_playerName
-            small(class =  "form-text text-danger") #{form_playerName.msg}   
+    div(class="form-group row mt-2")
+        label(for="playerName" class="col-2 col-form-label text-right") Player Name
+        div(class = "col-8")
+          input(class = "form-control" name = "playerName" type="text" placeholder = "Enter Player" value=(undefined===playerData ? "" : playerData.player_name) required="true")
+          if form_playerName
+              small(class =  "form-text text-danger") #{form_playerName.msg}   
 
-    div(class="form-group")
-        label(for="playerAge") Player Age :
-        input(class = "form-control" name = "playerAge" type="number" placeholder = "Enter Player Age" min = "15" max = "20" value=(undefined===playerData ? "" : playerData.player_age) required="true")
-        if form_playerAge
-            small(class =  "form-text text-danger") #{form_playerAge.msg}   
+    div(class="form-group row")
+        label(for="playerAge"  class="col-2 col-form-label text-right") Player Age
+        div(class = "col-8")
+          input(class = "form-control" name = "playerAge" type="number" placeholder = "Enter Player Age" min = "15" max = "20" value=(undefined===playerData ? "" : playerData.player_age) required="true")
+          if form_playerAge
+              small(class =  "form-text text-danger") #{form_playerAge.msg}   
 
-    div(class="form-group")
-        label(for="playerTeam") Player Team :
-        select(class = "form-control" id = "playerTeam" name = "playerTeam")
-          option(value = "") Select a Team from Below
-          each team in teamData 
-            option(value = team._id selected = (team._id.toString() === playerTeamSelected ? 'selected' : false)  )= team.team_title
-        if form_playerTeam
-            small(class =  "form-text text-danger") #{form_playerTeam.msg}            
+    div(class="form-group row")
+        label(for="playerTeam" class="col-2 col-form-label text-right") Player Team
+        div(class = "col-8")
+          select(class = "form-control" id = "playerTeam" name = "playerTeam")
+            option(value = "") Select a Team from Below
+            each team in teamData 
+              option(value = team._id selected = (team._id.toString() === playerTeamSelected ? 'selected' : false)  )= team.team_title
+          if form_playerTeam
+              small(class =  "form-text text-danger") #{form_playerTeam.msg}            
   
-    h6 Player Position : 
-    div(class="form-check form-check-inline")
-        each position in positionData
-          div
-            input(class = "form-check-input m-1" type = "checkbox" name = "playerPosition" id = "playerPosition" value = position._id checked = (playerPositionSelected.search(position._id.toString()) !== -1 ? 'checked' : false))
-            label(class = "form-check-label m-1" for="playerPosition") #{position.position_title}
+    div(class="form-group row")    
+      h6(for="playerTeam" class="col-2 col-form-label text-right mr-3") Player Position
+      div(class="form-check form-check-inline col-8")
+          each position in positionData
+            div
+              input(class = "form-check-input m-1" type = "checkbox" name = "playerPosition" id = "playerPosition" value = position._id checked = (playerPositionSelected.search(position._id.toString()) !== -1 ? 'checked' : false))
+              label(class = "form-check-label m-1" for="playerPosition") #{position.position_title}
 
     div(class = "form-group")
         if form_playerPosition
             small(class =  "form-text text-danger") #{form_playerPosition.msg}           
 
-    div(class="input-group mb-3")
-      div(class = "input-group-prepend")
-        span(class = "input-group-text") Upload
+    div(class="input-group mb-3 form-group row")
       div(class = "custom-file")
-        if playerData && playerData.player_image
-          input(type = "file" class = "custom-file-input" id = "playerImage" name = "playerImage") 
-          label(class = "custom-file-label" for = "playerImage") Choose another File
-        else
-          input(type = "file" class = "custom-file-input" id = "playerImage" name = "playerImage" required) 
-          label(class = "custom-file-label" for = "playerImage") Choose a File
+        label(for="playerImage" class="col-2 col-form-label text-right mr-3") Player Image
+        div(class = "col-8") 
+          if playerData && playerData.player_image
+            input(type = "file" class = "custom-file-input" id = "playerImage" name = "playerImage") 
+            label(class = "custom-file-label" for = "playerImage") Choose another File
+          else
+            input(type = "file" class = "custom-file-input" id = "playerImage" name = "playerImage" required) 
+            label(class = "custom-file-label" for = "playerImage") Choose a File
 
-    div(class = "form-group")             
-      button(type="submit" onClick = "boxCheck()" class = "btn btn-primary") Submit
+    if formType       
+      div(class="form-group row")
+        label(for = "passwordForAction" class = "col-2 col-form-label text-right") Password
+        div(class = "col-8")
+            input(class = "form-control" type = "password" name = "passwordForAction" required)
+            if actionErr
+                small(class =  "form-text text-danger") #{actionErr}
+
+
+    div(class = "form-row justify-content-center")   
+      div(class = "col-auto")          
+        button(type="submit" onClick = "boxCheck()" class = "btn btn-primary") Submit

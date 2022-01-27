@@ -15,34 +15,48 @@ block content
       h5(class = "text-center") Current Team Logo 
       img(src = teamData.team_image id = "teamLogoImage" height = "120" width = "150" class = "img-thumbnail rounded mx-auto d-block" alt = "Team Image")
 
-  form(method="POST" enctype="multipart/form-data" )
-    div(class="form-group")
-        label(for="team_name") Team Name :
-        input(class = "form-control" name = "team_name" type="text" placeholder = "Enter Team Name" value=(undefined===teamData ? "" : teamData.team_title) required="true")
-        if form_teamName
-            small(class =  "form-text text-danger") #{form_teamName.msg}
+  form(method="POST" enctype="multipart/form-data")
 
-    div(class="form-group")
-        label(for="team_region") Team Region :
-        input(class = "form-control" name = "team_region" type="text" placeholder = "Enter Team Region" value=(undefined===teamData ? "" : teamData.team_region)  required="true")
-        if form_teamRegion
-            small(class =  "form-text text-danger") #{form_teamRegion.msg}
+    div(class="form-group row mt-2")
+        label(for="team_name" class="col-2 col-form-label text-right") Team Name
+        div(class = "col-8")
+          input(class = "form-control" name = "team_name" type="text" placeholder = "Enter Team Name" value=(undefined===teamData ? "" : teamData.team_title) required="true")
+          if form_teamName
+              small(class =  "form-text text-danger") #{form_teamName.msg}
 
-    div(class="form-group")
-        label(for="team_motto") Team Motto :
-        input(class = "form-control" name = "team_motto" type="text" placeholder = "Enter Team Motto" value=(undefined===teamData ? "" : teamData.team_motto) required="true")
-        if form_teamMotto
-            small(class =  "form-text text-danger") #{form_teamMotto.msg}
+    div(class="form-group row")
+        label(for="team_region" class="col-2 col-form-label text-right") Team Region
+        div(class = "col-8")
+          input(class = "form-control" name = "team_region" type="text" placeholder = "Enter Team Region" value=(undefined===teamData ? "" : teamData.team_region)  required="true")
+          if form_teamRegion
+              small(class =  "form-text text-danger") #{form_teamRegion.msg}
 
-    div(class="input-group mb-3")
-      div(class = "input-group-prepend")
-        span(class = "input-group-text") Upload
+    div(class="form-group row")
+        label(for="team_motto" class="col-2 col-form-label text-right") Team Motto
+        div(class = "col-8")
+          input(class = "form-control" name = "team_motto" type="text" placeholder = "Enter Team Motto" value=(undefined===teamData ? "" : teamData.team_motto) required="true")
+          if form_teamMotto
+              small(class =  "form-text text-danger") #{form_teamMotto.msg}
+
+    div(class="input-group mb-3 form-group row")
       div(class = "custom-file")
-        if teamData && teamData.team_image
-          input(type = "file" class = "custom-file-input" id = "teamImage" name = "teamImage") 
-          label(class = "custom-file-label" for = "teamImage") Choose another File
-        else
-          input(type = "file" class = "custom-file-input" id = "teamImage" name = "teamImage" required) 
-          label(class = "custom-file-label" for = "teamImage") Choose a File
+        label(for="teamImage" class="col-2 col-form-label text-right mr-3") Team Image
+        div(class = "col-8")        
+          if teamData && teamData.team_image
+              input(type = "file" class = "custom-file-input" id = "teamImage" name = "teamImage") 
+              label(class = "custom-file-label" for = "teamImage") Choose another File
+          else
+              input(type = "file" class = "custom-file-input" id = "teamImage" name = "teamImage" required) 
+              label(class = "custom-file-label" for = "teamImage") Choose a File
 
-    button(type="submit" class = "btn btn-primary") Submit
+    if formType       
+      div(class="form-group row")
+        label(for = "passwordForAction" class = "col-2 col-form-label text-right") Password
+        div(class = "col-8")
+            input(class = "form-control" type = "password" placeholder = "Enter Password" name = "passwordForAction" required)
+            if actionErr
+                small(class =  "form-text text-danger") #{actionErr}
+
+    div(class = "form-row justify-content-center")
+      div(class = "col-auto")
+        button(type="submit" class = "btn btn-primary") Submit
