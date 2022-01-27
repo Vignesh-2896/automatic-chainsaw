@@ -24,7 +24,7 @@ var upload = multer({storage : storage});
 
 function myAuthorizer(username, password) { // Basic password auth using express-basic-auth.
   const userMatches = basicAuth.safeCompare(username, 'admin')
-  const passwordMatches = basicAuth.safeCompare(password, '#10ark$$b@T')
+  const passwordMatches = basicAuth.safeCompare(password, '<Your Password>')
 
   return userMatches & passwordMatches
 }

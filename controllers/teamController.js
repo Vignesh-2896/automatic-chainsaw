@@ -7,7 +7,7 @@ const async = require("async");
 const axios = require("axios");
 const {body, validationResult} = require("express-validator");
 
-axios.defaults.baseURL = 'https://lit-ridge-83224.herokuapp.com/haikyuu/';
+axios.defaults.baseURL = '<Your Website Path>/haikyuu/';
 
 exports.site_index = function(req, res, next){
 
